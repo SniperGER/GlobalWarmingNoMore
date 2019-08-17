@@ -1,0 +1,37 @@
+"ONBOARDING_TITLE" = "Willkommen zu\n%@";
+"ONBOARDING_NAME" = "GlobalWarmingNoMore";
+"ONBOARDING_FEATURE_1_TITLE" = "Ein mächtiger Wetter-Editor";
+"ONBOARDING_FEATURE_1_DESCRIPTION" = "Tippe und halte die Detailansicht einer Stadt, um den Wetter-Editor aufzurufen.";
+"ONBOARDING_FEATURE_2_TITLE" = "Dein Wetter – So, wie du es willst";
+"ONBOARDING_FEATURE_2_DESCRIPTION" = "Ändere die Wetterlage, Vorhersagen oder setze alles zufällig. Es ist deine Wahl.";
+"ONBOARDING_OPEN_SOURCE_TITLE" = "Kostenlose & Open Source wie immer";
+"ONBOARDING_OPEN_SOURCE_DESCRIPTION" = "Sieh dir den Quellcode auf GitHub an.";
+"ONBOARDING_GET_STARTED" = "Los geht's";
+
+"EDITOR_BUTTON_RESET" = "Zurücksetzen";
+"EDITOR_BUTTON_DONE" = "Fertig";
+"EDITOR_RESET_TITLE" = "\"%@\" zurücksetzen?";
+"EDITOR_RESET_DESCRIPTION" = "Dies wird \"%@\" auf die aktuellen Wetterdaten zurücksetzen. Sollten einige Werte nicht zurückgesetzt werden (wie z.B. Temperaturen), starte Wetter neu.";
+"EDITOR_RESET_ACTION_CANCEL" = "Abbrechen";
+"EDITOR_RESET_ACTION_CONFIRM" = "\"%@\" zurücksetzen";
+"EDITOR_ACTION_RANDOMIZE" = "Zufällige Werte";
+"EDITOR_EDIT_TITLE" = "\"%@\" bearbeiten";
+"EDITOR_EDIT_DESCRIPTION" = "Gib einen neuen Wert für \"%@\" ein.";
+"EDITOR_EDIT_ACTION_CANCEL" = "Abbrechen";
+"EDITOR_EDIT_ACTION_CONFIRM" = "OK";
+
+"SECTION_CURRENT_CONDITIONS" = "Aktuelle Bedingungen";
+"SECTION_HOURLY_FORECAST" = "Stündliche Vorhersagen";
+"SECTION_DAY_FORECAST" = "Wochen-Vorhersage";
+
+"CURRENT_CONDITION" = "Wetterlage";
+"CURRENT_TEMPERATURE" = "Temperatur";
+"CURRENT_WIND_DIRECTION" = "Windrichtung";
+"CURRENT_WIND_SPEED" = "Windgeschwindigkeit";
+
+"HOURLY_POP" = "Regenwahrscheinlichkeit";
+
+"DAY_HIGH" = "Höchsttemperatur";
+"DAY_HIGH_SHORT" = "H: %@";
+"DAY_LOW" = "Tiefsttemperatur";
+"DAY_LOW_SHORT" = "T: %@";

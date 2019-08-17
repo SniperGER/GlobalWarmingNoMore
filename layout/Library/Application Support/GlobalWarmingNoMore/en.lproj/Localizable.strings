@@ -1,0 +1,37 @@
+"ONBOARDING_TITLE" = "Welcome to\n%@";
+"ONBOARDING_NAME" = "GlobalWarmingNoMore";
+"ONBOARDING_FEATURE_1_TITLE" = "A powerful Weather editor";
+"ONBOARDING_FEATURE_1_DESCRIPTION" = "Tap and hold a city's detail view to bring up the Weather editor.";
+"ONBOARDING_FEATURE_2_TITLE" = "Your Weather – Your way";
+"ONBOARDING_FEATURE_2_DESCRIPTION" = "Change current conditions, forecasts or randomize everything. It's your choice.";
+"ONBOARDING_OPEN_SOURCE_TITLE" = "Free & Open Source as always";
+"ONBOARDING_OPEN_SOURCE_DESCRIPTION" = "Check out the source code on GitHub.";
+"ONBOARDING_GET_STARTED" = "Get Started";
+
+"EDITOR_BUTTON_RESET" = "Reset";
+"EDITOR_BUTTON_DONE" = "Done";
+"EDITOR_RESET_TITLE" = "Reset \"%@\"?";
+"EDITOR_RESET_DESCRIPTION" = "This will reset \"%@\" to live values again. If some values (eg. temperatures) did not reset correctly, restart Weather.";
+"EDITOR_RESET_ACTION_CANCEL" = "Cancel";
+"EDITOR_RESET_ACTION_CONFIRM" = "Reset \"%@\"";
+"EDITOR_ACTION_RANDOMIZE" = "Randomize!";
+"EDITOR_EDIT_TITLE" = "Edit \"%@\"";
+"EDITOR_EDIT_DESCRIPTION" = "Enter a new value for \"%@\"";
+"EDITOR_EDIT_ACTION_CANCEL" = "Cancel";
+"EDITOR_EDIT_ACTION_CONFIRM" = "Ok";
+
+"SECTION_CURRENT_CONDITIONS" = "Current Conditions";
+"SECTION_HOURLY_FORECAST" = "Hourly Forecast";
+"SECTION_DAY_FORECAST" = "Day Forecast";
+
+"CURRENT_CONDITION" = "Condition";
+"CURRENT_TEMPERATURE" = "Temperature";
+"CURRENT_WIND_DIRECTION" = "Wind Direction";
+"CURRENT_WIND_SPEED" = "Wind Speed";
+
+"HOURLY_POP" = "Chance of Precipitation";
+
+"DAY_HIGH" = "High";
+"DAY_HIGH_SHORT" = "H: %@";
+"DAY_LOW" = "Low";
+"DAY_LOW_SHORT" = "L: %@";

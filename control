@@ -1,0 +1,10 @@
+Package: ml.festival.globalwarmingnomore
+Name: GlobalWarmingNoMore
+Depends: mobilesubstrate
+Conflicts: cy+model.ipad
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: Well boys, we did it. Global Warming is no more!
+Maintainer: Sniper_GER <sniperger@festival.ml>
+Author: Sniper_GER <sniperger@festival.ml>
+Section: Tweaks
