@@ -11,9 +11,9 @@
 "EDITOR_BUTTON_RESET" = "Reset";
 "EDITOR_BUTTON_DONE" = "Done";
 "EDITOR_RESET_TITLE" = "Reset \"%@\"?";
-"EDITOR_RESET_DESCRIPTION" = "This will reset \"%@\" to live values again. If some values (eg. temperatures) did not reset correctly, restart Weather.";
+"EDITOR_RESET_DESCRIPTION" = "This will reset \"%@\" to current weather data again.";
 "EDITOR_RESET_ACTION_CANCEL" = "Cancel";
-"EDITOR_RESET_ACTION_CONFIRM" = "Reset \"%@\"";
+"EDITOR_RESET_ACTION_CONFIRM" = "Reset";
 "EDITOR_ACTION_RANDOMIZE" = "Randomize!";
 "EDITOR_EDIT_TITLE" = "Edit \"%@\"";
 "EDITOR_EDIT_DESCRIPTION" = "Enter a new value for \"%@\"";

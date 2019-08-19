@@ -17,6 +17,7 @@ typedef enum {
 	ConditionTypeFeelsLike,
 	ConditionTypeHumidity,
 	// ConditionTypeIsDay,
+	ConditionTypePrecipitationPast24Hours,
 	ConditionTypePressure,
 	ConditionTypeSunriseTime,
 	ConditionTypeSunsetTime,
@@ -33,7 +34,6 @@ typedef enum {
 
 @interface GWEditorTableViewCell : UITableViewCell {
 	id _detail;
-	ConditionType _conditionType;
 }
 
 @property (nonatomic, strong) City* city;

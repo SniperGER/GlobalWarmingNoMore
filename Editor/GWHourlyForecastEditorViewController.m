@@ -10,10 +10,6 @@
 
 @implementation GWHourlyForecastEditorViewController
 
-- (void)viewDidLoad {
-	[super viewDidLoad];
-}
-
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
 	
@@ -23,19 +19,21 @@
 		[self setTitle:_forecast.time];
 	}
 	[self.tableView reloadData];
-}	
+}
 
 - (void)handleInput:(NSString*)input forConditionType:(ConditionType)conditionType atIndexPath:(NSIndexPath*)indexPath {
+	if (!_forecast.overrideValues) _forecast.overrideValues = [NSMutableDictionary dictionary];
+	
 	switch (indexPath.row) {
 		case 1:
 			_forecast.percentPrecipitation = input.floatValue;
 			break;
 		case 2:
-			[_forecast.temperature _resetTemperatureValues];
-			[_forecast.temperature _setValue:input.floatValue forUnit:userTemperatureUnit];
+			_forecast.overrideValues[@"temperature"] = [[objc_getClass("WFTemperature") alloc] initWithTemperatureUnit:userTemperatureUnit value:input.floatValue];
 			break;
 		default: break;
 	}
+	
 	[self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
@@ -54,6 +52,8 @@
 	
 	if (!cell) cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"forecastCell"];
 	if (!_forecast) return cell;
+	
+	[cell.detailTextLabel setTextColor:UIColor.grayColor];
 	
 	switch (indexPath.row) {
 		case 0: {
@@ -103,40 +103,49 @@
 - (void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath {
 	UITableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
 	
-	if (indexPath.row == 0) {
+	switch (indexPath.row) {
+		case 0: {
 			GWWeatherConditionPickerController* conditionPicker = [[GWWeatherConditionPickerController alloc] initWithStyle:UITableViewStyleGrouped];
 			[conditionPicker setCity:_city];
 			[conditionPicker setHourlyForecast:_forecast];
 			[self.navigationController pushViewController:conditionPicker animated:YES];
-	} else if (indexPath.row == 1 ||
-		indexPath.row == 2) {
-		UIAlertController* alertController = [UIAlertController 
-			alertControllerWithTitle:[NSString stringWithFormat:GWLocalizedString(@"EDITOR_EDIT_TITLE"), cell.textLabel.text] 
-			message:[NSString stringWithFormat:GWLocalizedString(@"EDITOR_EDIT_DESCRIPTION"), cell.textLabel.text] 
-			preferredStyle:UIAlertControllerStyleAlert];
+			
+			break;
+		}
+		case 1:
+		case 2: {
+			UIAlertController* alertController = [UIAlertController 
+				alertControllerWithTitle:[NSString stringWithFormat:GWLocalizedString(@"EDITOR_EDIT_TITLE"), cell.textLabel.text] 
+				message:[NSString stringWithFormat:GWLocalizedString(@"EDITOR_EDIT_DESCRIPTION"), cell.textLabel.text] 
+				preferredStyle:UIAlertControllerStyleAlert];
+			
+			[alertController addTextFieldWithConfigurationHandler:^(UITextField* textField) {
+				[textField setPlaceholder:cell.detailTextLabel.text];
+				[textField setKeyboardType:UIKeyboardTypeNumbersAndPunctuation];
+			}];
+			
+			[alertController addAction:[UIAlertAction
+				actionWithTitle:GWLocalizedString(@"EDITOR_EDIT_ACTION_CANCEL")
+				style:UIAlertActionStyleCancel
+				handler:^(UIAlertAction* action) {
+					[tableView deselectRowAtIndexPath:indexPath animated:YES];
+			}]];
+			[alertController addAction:[UIAlertAction
+				actionWithTitle:GWLocalizedString(@"EDITOR_EDIT_ACTION_CONFIRM")
+				style:UIAlertActionStyleDefault
+				handler:^(UIAlertAction* action) {
+					[self 
+						handleInput:alertController.textFields.firstObject.text
+						forConditionType:-1
+						atIndexPath:indexPath];
+			}]];
+			
+			[self presentViewController:alertController animated:YES completion:nil];
+			
+			break;
+		}
 		
-		[alertController addTextFieldWithConfigurationHandler:^(UITextField* textField) {
-			[textField setPlaceholder:cell.detailTextLabel.text];
-			[textField setKeyboardType:UIKeyboardTypeNumbersAndPunctuation];
-		}];
-		
-		[alertController addAction:[UIAlertAction
-			actionWithTitle:GWLocalizedString(@"EDITOR_EDIT_ACTION_CONFIRM")
-			style:UIAlertActionStyleDefault
-			handler:^(UIAlertAction* action) {
-				[self 
-					handleInput:alertController.textFields.firstObject.text
-					forConditionType:-1
-					atIndexPath:indexPath];
-		}]];
-		[alertController addAction:[UIAlertAction
-			actionWithTitle:GWLocalizedString(@"EDITOR_EDIT_ACTION_CANCEL")
-			style:UIAlertActionStyleDefault
-			handler:^(UIAlertAction* action) {
-				[tableView deselectRowAtIndexPath:indexPath animated:YES];
-		}]];
-		
-		[self presentViewController:alertController animated:YES completion:nil];
+		default: break;
 	}
 }
 

@@ -11,9 +11,9 @@
 "EDITOR_BUTTON_RESET" = "Zurücksetzen";
 "EDITOR_BUTTON_DONE" = "Fertig";
 "EDITOR_RESET_TITLE" = "\"%@\" zurücksetzen?";
-"EDITOR_RESET_DESCRIPTION" = "Dies wird \"%@\" auf die aktuellen Wetterdaten zurücksetzen. Sollten einige Werte nicht zurückgesetzt werden (wie z.B. Temperaturen), starte Wetter neu.";
+"EDITOR_RESET_DESCRIPTION" = "Dies wird \"%@\" auf die aktuellen Wetterdaten zurücksetzen.";
 "EDITOR_RESET_ACTION_CANCEL" = "Abbrechen";
-"EDITOR_RESET_ACTION_CONFIRM" = "\"%@\" zurücksetzen";
+"EDITOR_RESET_ACTION_CONFIRM" = "Zurücksetzen";
 "EDITOR_ACTION_RANDOMIZE" = "Zufällige Werte";
 "EDITOR_EDIT_TITLE" = "\"%@\" bearbeiten";
 "EDITOR_EDIT_DESCRIPTION" = "Gib einen neuen Wert für \"%@\" ein.";

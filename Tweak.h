@@ -36,6 +36,7 @@ NSString* GWLocalizedString(NSString* key);
 @property (nonatomic, assign, readwrite) NSInteger conditionCode;
 @property (nonatomic, strong, readwrite) WFTemperature* feelsLike;
 @property (nonatomic, assign, readwrite) float humidity;
+@property (nonatomic, assign, readwrite) CGFloat precipitationPast24Hours;
 @property (nonatomic, assign, readwrite) float pressure;
 @property (nonatomic, assign, readwrite) NSUInteger sunriseTime;
 @property (nonatomic, assign, readwrite) NSUInteger sunsetTime;
@@ -46,6 +47,8 @@ NSString* GWLocalizedString(NSString* key);
 @property (nonatomic, assign, readwrite) float windSpeed;
 // %property
 @property (nonatomic, assign) BOOL isDirty;
+// %property
+@property (nonatomic, strong) NSMutableDictionary* overrideValues;
 
 - (NSArray*)dayForecasts;
 - (NSArray*)hourlyForecasts;
@@ -61,6 +64,8 @@ NSString* GWLocalizedString(NSString* key);
 @property (nonatomic, strong, readwrite) WFTemperature* high;
 @property (nonatomic, assign, readwrite) NSUInteger icon;
 @property (nonatomic, strong, readwrite) WFTemperature* low;
+// %property
+@property (nonatomic, strong) NSMutableDictionary* overrideValues;
 
 - (NSUInteger)dayNumber;
 - (NSUInteger)dayOfWeek;
@@ -70,6 +75,8 @@ NSString* GWLocalizedString(NSString* key);
 @property (nonatomic, assign, readwrite) NSUInteger conditionCode;
 @property (nonatomic, assign, readwrite) float percentPrecipitation;
 @property (nonatomic, strong, readwrite) WFTemperature* temperature;
+// %property
+@property (nonatomic, strong) NSMutableDictionary* overrideValues;
 
 - (id)time;
 @end
@@ -105,7 +112,11 @@ NSString* GWLocalizedString(NSString* key);
 @end
 
 @interface WFTemperature : NSObject
+// %property
+@property (nonatomic, strong) NSMutableDictionary* overrideValues;
+
 - (void)_resetTemperatureValues;
 - (void)_setValue:(CGFloat)arg1 forUnit:(int)arg2;
+- (id)initWithTemperatureUnit:(int)arg1 value:(CGFloat)arg2;
 - (CGFloat)temperatureForUnit:(int)arg1;
 @end

@@ -74,25 +74,25 @@ NSString* GWLocalizedString(NSString* key) {
 
 %hook WAPageCollectionViewController
 - (void)didUpdateWeather {
-	if (self.activeCity.isDirty) return;
+	if (self.activeCity.isDirty || self.activeCity.overrideValues != nil) return;
 	
 	%orig;
 }
 
 - (BOOL)needsLoadingWeatherCondition {
-	if (self.activeCity.isDirty) return NO;
+	if (self.activeCity.isDirty || self.activeCity.overrideValues != nil) return NO;
 	
 	return %orig;
 }
 
 - (void)setNeedsLoadingWeatherCondition:(BOOL)arg1 {
-	if (self.activeCity.isDirty) return;
+	if (self.activeCity.isDirty || self.activeCity.overrideValues != nil) return;
 	
 	%orig;
 }
 
 - (void)reloadData {
-	if (self.activeCity.isDirty) return;
+	if (self.activeCity.isDirty || self.activeCity.overrideValues != nil) return;
 	
 	%orig;
 }
@@ -100,42 +100,42 @@ NSString* GWLocalizedString(NSString* key) {
 
 %hook WAContainerViewController
 - (void)_startUpdateTimer {
-	if (self.activeCity.isDirty) return;
+	if (self.activeCity.isDirty || self.activeCity.overrideValues != nil) return;
 	
 	%orig;
 }
 
 - (void)_updateLocalWeather {
-	if (self.activeCity.isDirty) return;
+	if (self.activeCity.isDirty || self.activeCity.overrideValues != nil) return;
 	
 	%orig;
 }
 
 - (void)cityDidUpdateWeather:(City*)arg1 {
-	if (arg1.isDirty) return;
+	if (arg1.isDirty || arg1.overrideValues != nil) return;
 	
 	%orig;
 }
 
 - (void)reloadCities {
-	if (self.activeCity.isDirty) return;
+	if (self.activeCity.isDirty || self.activeCity.overrideValues != nil) return;
 	
 	%orig;
 }
 - (void)reloadCitiesFromPrefs {
-	if (self.activeCity.isDirty) return;
+	if (self.activeCity.isDirty || self.activeCity.overrideValues != nil) return;
 	
 	%orig;
 }
 
 - (void)reloadLocalCity {
-	if (self.activeCity.isDirty) return;
+	if (self.activeCity.isDirty || self.activeCity.overrideValues != nil) return;
 	
 	%orig;
 }
 
 - (void)updateAllCities {
-	if (self.activeCity.isDirty) return;
+	if (self.activeCity.isDirty || self.activeCity.overrideValues != nil) return;
 	
 	%orig;
 }
@@ -145,50 +145,97 @@ NSString* GWLocalizedString(NSString* key) {
 
 %hook City
 %property (nonatomic, assign) BOOL isDirty;
+%property (nonatomic, strong) NSMutableDictionary* overrideValues;
+
+- (NSArray*)dayForecasts {
+	if (self.overrideValues && self.overrideValues[@"dayForecasts"]) return self.overrideValues[@"dayForecasts"];
+	return %orig;
+}
+- (WFTemperature*)feelsLike {
+	if (self.overrideValues && self.overrideValues[@"feelsLike"]) return self.overrideValues[@"feelsLike"];
+	return %orig;
+}
+- (NSArray*)hourlyForecasts {
+	if (self.overrideValues && self.overrideValues[@"hourlyForecasts"]) return self.overrideValues[@"hourlyForecasts"];
+	return %orig;
+}
+- (WFTemperature*)temperature {
+	if (self.overrideValues && self.overrideValues[@"temperature"]) return self.overrideValues[@"temperature"];
+	return %orig;
+}
+- (id)objectForKey:(id)key {
+	if (self.overrideValues && self.overrideValues[key]) return self.overrideValues[key];
+	return %orig;
+}
+
+
 
 - (BOOL)autoUpdate {
-	if (self.isDirty) return NO;
+	if (self.isDirty || self.overrideValues != nil) return NO;
 	return %orig;
 }
 
 - (BOOL)update {
-	if (self.isDirty) return NO;
+	if (self.isDirty || self.overrideValues != nil) return NO;
 	return %orig;
 }
 
 - (NSInteger)updateInterval {
-	if (self.isDirty) return -1;
+	if (self.isDirty || self.overrideValues != nil) return -1;
 	return %orig;
 }
 
 - (id)updateTime {
-	if (self.isDirty) return [NSDate date];
+	if (self.isDirty || self.overrideValues != nil) return [NSDate date];
 	return %orig;
 }
 %end	// %hook City
+
+%hook WADayForecast
+%property (nonatomic, strong) NSMutableDictionary* overrideValues;
+
+- (WFTemperature*)high {
+	if (self.overrideValues && self.overrideValues[@"high"]) return self.overrideValues[@"high"];
+	return %orig;
+}
+
+- (WFTemperature*)low {
+	if (self.overrideValues && self.overrideValues[@"low"]) return self.overrideValues[@"low"];
+	return %orig;
+}
+%end	// %hook WADayForecast
+
+%hook WAHourlyForecast
+%property (nonatomic, strong) NSMutableDictionary* overrideValues;
+
+- (WFTemperature*)temperature {
+	if (self.overrideValues && self.overrideValues[@"temperature"]) return self.overrideValues[@"temperature"];
+	return %orig;
+}
+%end	// %hook WADayForecast
 
 
 
 %hook TWCCityUpdater
 - (void)updateWeatherForCity:(City*)arg1 {
-	if (arg1.isDirty) return;
+	if (arg1.isDirty || arg1.overrideValues != nil) return;
 	%orig;
 }
 %end	// %hook TWCCityUpdater
 
 %hook TWCLocationUpdater
 - (void)updateWeatherForCity:(City*)arg1 {
-	if (arg1.isDirty) return;
+	if (arg1.isDirty || arg1.overrideValues != nil) return;
 	%orig;
 }
 
 - (void)updateWeatherForLocation:(id)arg1 city:(City*)arg2 {
-	if (arg2.isDirty) return;
+	if (arg2.isDirty || arg2.overrideValues != nil) return;
 	%orig;
 }
 
 - (void)updateWeatherForLocation:(id)arg1 city:(City*)arg2 isFromFrameworkClient:(BOOL)arg3 withCompletionHandler:(/*block*/id)arg4 {
-	if (arg2.isDirty) return;
+	if (arg2.isDirty || arg2.overrideValues != nil) return;
 	%orig;
 }
 %end	// %hook TWCLocationUpdater

@@ -54,6 +54,15 @@
 		style:UIAlertActionStyleDestructive
 		handler:^(UIAlertAction* action) {
 			[_activeCity setIsDirty:NO];
+			[_activeCity setOverrideValues:nil];
+			
+			for (WAHourlyForecast* forecast in _activeCity.hourlyForecasts) {
+				[forecast setOverrideValues:nil];
+			}
+			for (WADayForecast* forecast in _activeCity.dayForecasts) {
+				[forecast setOverrideValues:nil];
+			}
+			
 			[_activeCity setUpdateTime:[NSDate distantPast]];
 			[(WAPageCollectionViewController*)self.weatherCityView.presentingViewController updateAndDisplayActiveCity];
 			[(WAPageCollectionViewController*)self.weatherCityView.presentingViewController updateExtendedWeatherOnVisibleCells];
@@ -64,6 +73,8 @@
 }
 
 - (void)handleInput:(NSString*)input forConditionType:(ConditionType)conditionType atIndexPath:(NSIndexPath*)indexPath {
+	if (!_activeCity.overrideValues) _activeCity.overrideValues = [NSMutableDictionary dictionary];
+	
 	switch (conditionType) {
 		case ConditionTypeAirQualityCategory:
 			_activeCity.airQualityCategory = @(input.intValue);
@@ -72,11 +83,15 @@
 			_activeCity.airQualityIdx = @(input.intValue);
 			break;
 		case ConditionTypeFeelsLike:
-			[_activeCity.feelsLike _resetTemperatureValues];
-			[_activeCity.feelsLike _setValue:input.floatValue forUnit:userTemperatureUnit];
+			_activeCity.overrideValues[@"feelsLike"] = [[objc_getClass("WFTemperature") alloc] initWithTemperatureUnit:userTemperatureUnit value:input.floatValue];
+			// [_activeCity.feelsLike _resetTemperatureValues];
+			// [_activeCity.feelsLike _setValue:input.floatValue forUnit:userTemperatureUnit];
 			break;
 		case ConditionTypeHumidity:
 			_activeCity.humidity = input.floatValue;
+			break;
+		case ConditionTypePrecipitationPast24Hours:
+			_activeCity.precipitationPast24Hours = input.floatValue / 10;
 			break;
 		case ConditionTypePressure:
 			_activeCity.pressure = input.floatValue;
@@ -88,8 +103,9 @@
 			_activeCity.sunsetTime = input.intValue;
 			break;
 		case ConditionTypeTemperature:
-			[_activeCity.temperature _resetTemperatureValues];
-			[_activeCity.temperature _setValue:input.floatValue forUnit:userTemperatureUnit];
+			_activeCity.overrideValues[@"temperature"] = [[objc_getClass("WFTemperature") alloc] initWithTemperatureUnit:userTemperatureUnit value:input.floatValue];
+			// [_activeCity.temperature _resetTemperatureValues];
+			// [_activeCity.temperature _setValue:input.floatValue forUnit:userTemperatureUnit];
 			break;
 		case ConditionTypeUVIndex:
 			_activeCity.uvIndex = input.intValue;
@@ -105,6 +121,8 @@
 			break;
 		default: break;
 	}
+	
+	[_activeCity setIsDirty:YES];
 	[self.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
 }
 
@@ -117,7 +135,7 @@
 - (NSInteger)tableView:(UITableView*)tableView numberOfRowsInSection:(NSInteger)section {
 	switch (section) {
 		case 0: return 1;
-		case 1: return 13;
+		case 1: return 14;
 		case 2: return _activeCity.hourlyForecasts.count;
 		case 3: return _activeCity.dayForecasts.count;
 		default: return 0;
@@ -146,19 +164,28 @@
 		GWEditorTableViewCell* cell = (GWEditorTableViewCell*)[tableView dequeueReusableCellWithIdentifier:@"currentConditionCell"];
 		
 		if (!cell) cell = [[GWEditorTableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"currentConditionCell"];
+		
 		[cell setCity:_activeCity];
 		[cell setConditionType:(ConditionType)indexPath.row];
 		
 		return cell;
+		
 	} else if (indexPath.section == 2) {
 		UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"hourlyForecastCell"];
+		
 		if (!cell) cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"hourlyForecastCell"];
 		
+		if (_activeCity.hourlyForecasts.count < indexPath.row) return cell;
 		WAHourlyForecast* forecast = _activeCity.hourlyForecasts[indexPath.row];
 		[cell.textLabel setText:forecast.time];
 		
 		WFTemperatureFormatter* formatter = [objc_getClass("WFTemperatureFormatter") temperatureFormatterWithInputUnit:2 outputUnit:userTemperatureUnit];
-		[cell.detailTextLabel setText:[NSString stringWithFormat:@"%@, %@", [GWWeatherConditionParser localizedStringForConditionCode:forecast.conditionCode], [formatter formattedStringFromTemperature:forecast.temperature]]];
+		
+		[cell.detailTextLabel setTextColor:UIColor.grayColor];
+		[cell.detailTextLabel setText:[NSString stringWithFormat:@"%@, %@", 
+			[GWWeatherConditionParser localizedStringForConditionCode:forecast.conditionCode],
+			[formatter formattedStringFromTemperature:forecast.temperature]
+		]];
 		
 		CGRect targetRect = CGRectMake(0, 0, 29, 29);
 		UIImage* image = [objc_getClass("WeatherImageLoader") conditionImageWithConditionIndex:forecast.conditionCode];
@@ -180,16 +207,20 @@
 		return cell;
 	} else if (indexPath.section == 3) {
 		UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"dayForecastCell"];
+		
 		if (!cell) cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"dayForecastCell"];
 		
+		if (_activeCity.dayForecasts.count < indexPath.row) return cell;
 		WADayForecast* forecast = _activeCity.dayForecasts[indexPath.row];
-		
+
 		NSCalendar* calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
 		[calendar setLocale:[NSLocale currentLocale]];
 		NSArray* weekDays = [calendar weekdaySymbols];
-		[cell.textLabel setText:weekDays[[_activeCity.dayForecasts[indexPath.row] dayOfWeek] - 1]];
+		[cell.textLabel setText:weekDays[forecast.dayOfWeek - 1]];
 		
 		WFTemperatureFormatter* formatter = [objc_getClass("WFTemperatureFormatter") temperatureFormatterWithInputUnit:2 outputUnit:userTemperatureUnit];
+		
+		[cell.detailTextLabel setTextColor:UIColor.grayColor];
 		[cell.detailTextLabel setText:[NSString stringWithFormat:@"%@, %@, %@", 
 			[GWWeatherConditionParser localizedStringForConditionCode:forecast.icon],
 			[NSString stringWithFormat:GWLocalizedString(@"DAY_HIGH_SHORT"), [formatter formattedStringFromTemperature:forecast.high]],
@@ -211,48 +242,58 @@
 		[cell.imageView.layer setCornerRadius:3.625];
 		[cell.imageView setClipsToBounds:YES];
 		
-		// [cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
+		[cell setAccessoryType:UITableViewCellAccessoryDisclosureIndicator];
 		
 		return cell;
 	}
 	return [UITableViewCell new];
 }
 
-#pragma mark - Table View Delegate
-
 - (void)tableView:(UITableView*)tableView didSelectRowAtIndexPath:(NSIndexPath*)indexPath {
-	if (indexPath.section == 0) {
-		_activeCity.airQualityCategory = [NSNumber numberWithInt:arc4random_uniform((uint32_t)(6 + 1))];
-		_activeCity.airQualityIdx = [NSNumber numberWithInt:arc4random_uniform((uint32_t)(100 + 1))];
-		_activeCity.conditionCode = arc4random_uniform((uint32_t)(48 + 1));
-		[_activeCity.feelsLike _setValue:((float)arc4random() / 0x100000000) * (100 - -100) + -100 forUnit:userTemperatureUnit];
-		_activeCity.humidity = ((float)arc4random() / 0x100000000) * (100);
-		_activeCity.pressure = ((float)arc4random() / 0x100000000) * (1050 - 1000) + 1000;
-		_activeCity.sunriseTime = arc4random_uniform((uint32_t)(2359 + 1));
-		_activeCity.sunsetTime = arc4random_uniform((uint32_t)(2359 + 1));
-		[_activeCity.temperature _setValue:((float)arc4random() / 0x100000000) * (100 - -100) + -100 forUnit:userTemperatureUnit];
-		_activeCity.uvIndex = arc4random_uniform((uint32_t)(15 + 1));
-		_activeCity.visibility = ((float)arc4random() / 0x100000000) * (100);
-		_activeCity.windSpeed = ((float)arc4random() / 0x100000000) * (360);
-		_activeCity.windDirection = ((float)arc4random() / 0x100000000) * (360);
+	switch (indexPath.section) {
+		case 0: {
+			if (!_activeCity.overrideValues) _activeCity.overrideValues = [NSMutableDictionary dictionary];
+			
+			_activeCity.airQualityCategory = [NSNumber numberWithInt:(arc4random_uniform(6) + 1)];
+			_activeCity.airQualityIdx = [NSNumber numberWithInt:(arc4random_uniform(100) + 1)];
+			_activeCity.conditionCode = arc4random_uniform((uint32_t)(47 + 1));
+			_activeCity.overrideValues[@"feelsLike"] = [[objc_getClass("WFTemperature") alloc] initWithTemperatureUnit:userTemperatureUnit value:(((float)arc4random() / 0x100000000) * (100 - -100) + -100)];
+			_activeCity.humidity = ((float)arc4random() / 0x100000000) * (100);
+			_activeCity.precipitationPast24Hours = (((float)arc4random() / 0x100000000) * (100)) / 100;
+			_activeCity.pressure = ((float)arc4random() / 0x100000000) * (1050 - 1000) + 1000;
+			_activeCity.sunriseTime = arc4random_uniform((uint32_t)(2359 + 1));
+			_activeCity.sunsetTime = arc4random_uniform((uint32_t)(2359 + 1));
+			_activeCity.overrideValues[@"temperature"] = [[objc_getClass("WFTemperature") alloc] initWithTemperatureUnit:userTemperatureUnit value:(((float)arc4random() / 0x100000000) * (100 - -100) + -100)];
+			_activeCity.uvIndex = arc4random_uniform((uint32_t)(15 + 1));
+			_activeCity.visibility = ((float)arc4random() / 0x100000000) * (100);
+			_activeCity.windSpeed = ((float)arc4random() / 0x100000000) * (120);
+			_activeCity.windDirection = ((float)arc4random() / 0x100000000) * (360);
+			
+			for (WAHourlyForecast* forecast in _activeCity.hourlyForecasts) {
+				if (!forecast.overrideValues) forecast.overrideValues = [NSMutableDictionary dictionary];
+
+				forecast.conditionCode = arc4random_uniform((uint32_t)(47 + 1));
+				forecast.percentPrecipitation = ((float)arc4random() / 0x100000000) * (100);
+				forecast.overrideValues[@"temperature"] = [[objc_getClass("WFTemperature") alloc] initWithTemperatureUnit:userTemperatureUnit value:(((float)arc4random() / 0x100000000) * (100 - -100) + -100)];
+			}
+			
+			for (WADayForecast* forecast in _activeCity.dayForecasts) {
+				if (!forecast.overrideValues) forecast.overrideValues = [NSMutableDictionary dictionary];
+				
+				forecast.overrideValues[@"high"] = [[objc_getClass("WFTemperature") alloc] initWithTemperatureUnit:userTemperatureUnit value:(((float)arc4random() / 0x100000000) * (100 - -100) + -100)];
+				forecast.icon = arc4random_uniform((uint32_t)(47 + 1));
+				forecast.overrideValues[@"low"] = [[objc_getClass("WFTemperature") alloc] initWithTemperatureUnit:userTemperatureUnit value:(((float)arc4random() / 0x100000000) * (100 - -100) + -100)];
+			}
+			
+			[_activeCity setIsDirty:YES];
+			[tableView reloadData];
 		
-		for (WAHourlyForecast* forecast in _activeCity.hourlyForecasts) {
-			forecast.conditionCode = arc4random_uniform((uint32_t)(48 + 1));
-			forecast.percentPrecipitation = ((float)arc4random() / 0x100000000) * (100);
-			[forecast.temperature _setValue:((float)arc4random() / 0x100000000) * (100 - -100) + -100 forUnit:userTemperatureUnit];
+			break;
 		}
-		
-		for (WADayForecast* forecast in _activeCity.dayForecasts) {
-			[forecast.high _setValue:((float)arc4random() / 0x100000000) * (100 - -100) + -100 forUnit:userTemperatureUnit];
-			forecast.icon = arc4random_uniform((uint32_t)(48 + 1));
-			[forecast.low _setValue:((float)arc4random() / 0x100000000) * (100 - -100) + -100 forUnit:userTemperatureUnit];
-		}
-		
-		[tableView reloadData];
-	} else if (indexPath.section == 1) {
-		GWEditorTableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
-		
-		if (cell.conditionType != ConditionTypeConditionCode) {
+		case 1: {
+			GWEditorTableViewCell* cell = [tableView cellForRowAtIndexPath:indexPath];
+			
+			if (cell.conditionType != ConditionTypeConditionCode) {
 				UIAlertController* alertController = [UIAlertController 
 					alertControllerWithTitle:[NSString stringWithFormat:GWLocalizedString(@"EDITOR_EDIT_TITLE"), cell.textLabel.text] 
 					message:[NSString stringWithFormat:GWLocalizedString(@"EDITOR_EDIT_DESCRIPTION"), cell.textLabel.text] 
@@ -264,6 +305,12 @@
 				}];
 				
 				[alertController addAction:[UIAlertAction
+					actionWithTitle:GWLocalizedString(@"EDITOR_EDIT_ACTION_CANCEL")
+					style:UIAlertActionStyleCancel
+					handler:^(UIAlertAction* action) {
+						[tableView deselectRowAtIndexPath:indexPath animated:YES];
+				}]];
+				[alertController addAction:[UIAlertAction
 					actionWithTitle:GWLocalizedString(@"EDITOR_EDIT_ACTION_CONFIRM")
 					style:UIAlertActionStyleDefault
 					handler:^(UIAlertAction* action) {
@@ -272,29 +319,32 @@
 							forConditionType:cell.conditionType
 							atIndexPath:indexPath];
 				}]];
-				[alertController addAction:[UIAlertAction
-					actionWithTitle:GWLocalizedString(@"EDITOR_EDIT_ACTION_CANCEL")
-					style:UIAlertActionStyleDefault
-					handler:^(UIAlertAction* action) {
-						[tableView deselectRowAtIndexPath:indexPath animated:YES];
-				}]];
 				
 				[self presentViewController:alertController animated:YES completion:nil];
-		} else {
-			GWWeatherConditionPickerController* conditionPicker = [[GWWeatherConditionPickerController alloc] initWithStyle:UITableViewStyleGrouped];
-			[conditionPicker setCity:_activeCity];
-			[self.navigationController pushViewController:conditionPicker animated:YES];
+			} else {
+				GWWeatherConditionPickerController* conditionPicker = [[GWWeatherConditionPickerController alloc] initWithStyle:UITableViewStyleGrouped];
+				[conditionPicker setCity:_activeCity];
+				[self.navigationController pushViewController:conditionPicker animated:YES];
+			}
+			
+			break;
 		}
-	} else if (indexPath.section == 2) {
-		GWHourlyForecastEditorViewController* forecastEditor = [[GWHourlyForecastEditorViewController alloc] initWithStyle:UITableViewStyleGrouped];
-		[forecastEditor setCity:_activeCity];
-		[forecastEditor setForecast:_activeCity.hourlyForecasts[indexPath.row]];
-		[self.navigationController pushViewController:forecastEditor animated:YES];
-	} else if (indexPath.section == 3) {
-		GWDayForecastEditorViewController* forecastEditor = [[GWDayForecastEditorViewController alloc] initWithStyle:UITableViewStyleGrouped];
-		[forecastEditor setCity:_activeCity];
-		[forecastEditor setForecast:_activeCity.dayForecasts[indexPath.row]];
-		[self.navigationController pushViewController:forecastEditor animated:YES];
+		case 2: {
+			GWHourlyForecastEditorViewController* forecastEditor = [[GWHourlyForecastEditorViewController alloc] initWithStyle:UITableViewStyleGrouped];
+			[forecastEditor setCity:_activeCity];
+			[forecastEditor setForecast:_activeCity.hourlyForecasts[indexPath.row]];
+			[self.navigationController pushViewController:forecastEditor animated:YES];
+			
+			break;
+		}
+		case 3: {
+			GWDayForecastEditorViewController* forecastEditor = [[GWDayForecastEditorViewController alloc] initWithStyle:UITableViewStyleGrouped];
+			[forecastEditor setCity:_activeCity];
+			[forecastEditor setForecast:_activeCity.dayForecasts[indexPath.row]];
+			[self.navigationController pushViewController:forecastEditor animated:YES];
+			
+			break;
+		}
 	}
 }
 

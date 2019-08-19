@@ -29,39 +29,36 @@
 }
 
 - (UITableViewCell*)tableView:(UITableView*)tableView cellForRowAtIndexPath:(NSIndexPath*)indexPath {
-	if (indexPath.section == 0) {
-		UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
-		
-		if (!cell) cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
-		[cell.textLabel setText:[GWWeatherConditionParser localizedStringForConditionCode:indexPath.row]];
-		
-		CGRect targetRect = CGRectMake(0, 0, 29, 29);
-		UIImage* image = [objc_getClass("WeatherImageLoader") conditionImageWithConditionIndex:indexPath.row];
-		UIGraphicsBeginImageContextWithOptions(targetRect.size, false, 2.0);
-		
-		[[UIColor colorWithRed:0.37 green:0.37 blue:0.37 alpha:1.0] setFill];
-		UIRectFill(targetRect);
-		
-		[image drawInRect:targetRect];
-		image = UIGraphicsGetImageFromCurrentImageContext();
-		UIGraphicsEndImageContext();
-		
-		[cell.imageView setImage:image];
-		[cell.imageView.layer setCornerRadius:3.625];
-		[cell.imageView setClipsToBounds:YES];
-		
-		if ((_dayForecast && _dayForecast.icon == indexPath.row) ||
-			(_hourlyForecast && _hourlyForecast.conditionCode == indexPath.row)) {
-			cell.accessoryType = UITableViewCellAccessoryCheckmark;
-		} else if (_city.conditionCode == indexPath.row) {
-			cell.accessoryType = UITableViewCellAccessoryCheckmark;
-		} else {
-			cell.accessoryType = UITableViewCellAccessoryNone;
-		}
-		
-		return cell;
+	UITableViewCell* cell = [tableView dequeueReusableCellWithIdentifier:@"cell"];
+	
+	if (!cell) cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
+	[cell.textLabel setText:[GWWeatherConditionParser localizedStringForConditionCode:indexPath.row]];
+	
+	CGRect targetRect = CGRectMake(0, 0, 29, 29);
+	UIImage* image = [objc_getClass("WeatherImageLoader") conditionImageWithConditionIndex:indexPath.row];
+	UIGraphicsBeginImageContextWithOptions(targetRect.size, false, 2.0);
+	
+	[[UIColor colorWithRed:0.37 green:0.37 blue:0.37 alpha:1.0] setFill];
+	UIRectFill(targetRect);
+	
+	[image drawInRect:targetRect];
+	image = UIGraphicsGetImageFromCurrentImageContext();
+	UIGraphicsEndImageContext();
+	
+	[cell.imageView setImage:image];
+	[cell.imageView.layer setCornerRadius:3.625];
+	[cell.imageView setClipsToBounds:YES];
+	
+	if ((_dayForecast && _dayForecast.icon == indexPath.row) ||
+		(_hourlyForecast && _hourlyForecast.conditionCode == indexPath.row)) {
+		cell.accessoryType = UITableViewCellAccessoryCheckmark;
+	} else if (_dayForecast == nil && _hourlyForecast == nil && _city.conditionCode == indexPath.row) {
+		cell.accessoryType = UITableViewCellAccessoryCheckmark;
+	} else {
+		cell.accessoryType = UITableViewCellAccessoryNone;
 	}
-	return [UITableViewCell new];
+	
+	return cell;
 }
 
 #pragma mark - Table View Delegate

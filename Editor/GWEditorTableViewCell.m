@@ -10,6 +10,14 @@
 
 @implementation GWEditorTableViewCell
 
+- (id)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString*)reuseIdentifier {
+	if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
+		[self.detailTextLabel setTextColor:UIColor.grayColor];
+	}
+	
+	return self;
+}
+
 - (void)setConditionType:(ConditionType)conditionType {
 	_conditionType = conditionType;
 	
@@ -31,21 +39,6 @@
 			[self.textLabel setText:GWLocalizedString(@"CURRENT_CONDITION")];
 			[self.detailTextLabel setText:[GWWeatherConditionParser localizedStringForConditionCode:_city.conditionCode]];
 			
-			CGRect targetRect = CGRectMake(0, 0, 29, 29);
-			UIImage* image = [objc_getClass("WeatherImageLoader") conditionImageWithConditionIndex:_city.conditionCode];
-			UIGraphicsBeginImageContextWithOptions(targetRect.size, false, 2.0);
-			
-			[[UIColor colorWithRed:0.37 green:0.37 blue:0.37 alpha:1.0] setFill];
-			UIRectFill(targetRect);
-			
-			[image drawInRect:targetRect];
-			image = UIGraphicsGetImageFromCurrentImageContext();
-			UIGraphicsEndImageContext();
-			
-			[self.imageView setImage:image];
-			[self.imageView.layer setCornerRadius:3.625];
-			[self.imageView setClipsToBounds:YES];
-			
 			break;
 		}
 		case ConditionTypeFeelsLike: {
@@ -58,6 +51,11 @@
 		case ConditionTypeHumidity: {
 			[self.textLabel setText:[weatherFramework localizedStringForKey:@"HUMIDITY" value:nil table:@"WeatherFrameworkLocalizableStrings"]];
 			[self.detailTextLabel setText:[NSString stringWithFormat:@"%.00f %%", _city.humidity]];
+			break;
+		}
+		case ConditionTypePrecipitationPast24Hours: {
+			[self.textLabel setText:[weatherFramework localizedStringForKey:@"PRECIPITATION" value:nil table:@"WeatherFrameworkLocalizableStrings"]];
+			[self.detailTextLabel setText:[[objc_getClass("WeatherPrecipitationFormatter") convenienceFormatter] stringFromDistance:_city.precipitationPast24Hours isDataMetric:YES]];
 			break;
 		}
 		case ConditionTypePressure: {
@@ -104,6 +102,25 @@
 			break;
 		}
 		default: break;
+	}
+	
+	if (conditionType == ConditionTypeConditionCode) {
+		CGRect targetRect = CGRectMake(0, 0, 29, 29);
+		UIImage* image = [objc_getClass("WeatherImageLoader") conditionImageWithConditionIndex:_city.conditionCode];
+		UIGraphicsBeginImageContextWithOptions(targetRect.size, false, 2.0);
+		
+		[[UIColor colorWithRed:0.37 green:0.37 blue:0.37 alpha:1.0] setFill];
+		UIRectFill(targetRect);
+		
+		[image drawInRect:targetRect];
+		image = UIGraphicsGetImageFromCurrentImageContext();
+		UIGraphicsEndImageContext();
+		
+		[self.imageView setImage:image];
+		[self.imageView.layer setCornerRadius:3.625];
+		[self.imageView setClipsToBounds:YES];
+	} else {
+		[self.imageView setImage:nil];
 	}
 }
 
