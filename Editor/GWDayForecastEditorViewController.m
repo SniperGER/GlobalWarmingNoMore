@@ -13,6 +13,10 @@
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
 	
+	if (@available(iOS 13, *)) {
+		[self setModalInPresentation:YES];
+	}
+	
 	userTemperatureUnit = [[objc_getClass("WeatherPreferences") sharedPreferences] userTemperatureUnit];
 	
 	if (_forecast) {

@@ -1,9 +1,9 @@
 //
-//  Tweak.x
-//  GlobalWarmingNoMore
+//	Tweak.x
+//	GlobalWarmingNoMore
 //
-//  Created by Janik Schmidt on 15.08.19.
-//  Copyright © 2019 Team FESTIVAL. All rights reserved
+//	Created by Janik Schmidt on 15.08.19.
+//	Copyright © 2019 Team FESTIVAL. All rights reserved
 //
 
 #include "Tweak.h"
@@ -18,8 +18,11 @@ NSString* GWLocalizedString(NSString* key) {
 	%orig;
 	
 	NSUserDefaults* defaults = [NSUserDefaults standardUserDefaults];
-	if (![defaults objectForKey:@"GWDidCompleteOnboarding"]) {
-		[self.keyWindow.rootViewController presentViewController:[GWOnboardingViewController new] animated:YES completion:nil];
+	if (![defaults objectForKey:@"GWDidCompleteOnboarding"] || ![[defaults objectForKey:@"GWDidCompleteOnboarding"] boolValue]) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+			[self.keyWindow.rootViewController presentViewController:[GWOnboardingViewController new] animated:YES completion:nil];
+#pragma GCC diagnostic pop
 	}
 }
 %end	// %hook Application
@@ -61,12 +64,12 @@ NSString* GWLocalizedString(NSString* key) {
 %new
 - (UIViewController*)presentingViewController {
 	UIResponder *responder = self;
-    while (![responder isKindOfClass:[UIViewController class]]) {
-        responder = [responder nextResponder];
-        if (nil == responder) {
-            break;
-        }
-    }
+		while (![responder isKindOfClass:[UIViewController class]]) {
+				responder = [responder nextResponder];
+				if (nil == responder) {
+						break;
+				}
+		}
 	
 	return (UIViewController*)responder;
 }

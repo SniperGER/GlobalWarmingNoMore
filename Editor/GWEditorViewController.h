@@ -8,7 +8,7 @@
 
 @class City, WAWeatherCityView;
 
-@interface GWEditorViewController : UITableViewController {
+@interface GWEditorViewController : UITableViewController <UIAdaptivePresentationControllerDelegate> {
 	int userTemperatureUnit;
 }
 

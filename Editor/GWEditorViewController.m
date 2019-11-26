@@ -23,6 +23,10 @@
 - (void)viewWillAppear:(BOOL)animated {
 	[super viewWillAppear:animated];
 	
+	if (@available(iOS 13, *)) {
+		[self.navigationController.presentationController setDelegate:self];
+	}
+	
 	userTemperatureUnit = [[objc_getClass("WeatherPreferences") sharedPreferences] userTemperatureUnit];
 	
 	if (_activeCity) {
@@ -31,11 +35,19 @@
 	[self.tableView reloadData];
 }
 
+- (void)presentationControllerWillDismiss:(UIPresentationController *)presentationController {
+	[self applyWeatherData];
+}
+
 - (void)dismiss {
+	[self applyWeatherData];
+	[self.navigationController dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)applyWeatherData {
 	[self.weatherCityView updateUI];
 	[(WAPageCollectionViewController*)self.weatherCityView.presentingViewController scrollViewDidEndDecelerating:nil];
 	[(WAPageCollectionViewController*)self.weatherCityView.presentingViewController updateBackground];
-	[self.navigationController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)resetActiveCity {

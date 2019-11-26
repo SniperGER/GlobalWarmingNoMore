@@ -8,4 +8,6 @@
 
 @interface GWOnboardingViewController : UIViewController
 
+@property (nonatomic, strong) UIScrollView* scrollView;
+
 @end

@@ -11,7 +11,13 @@
 @implementation GWOnboardingViewController
 
 - (void)viewDidLoad {
-	[self.view setBackgroundColor:UIColor.whiteColor];
+	if (@available(iOS 13, *)) {
+		[self setModalInPresentation:YES];
+		
+		[self.view setBackgroundColor:UIColor.systemBackgroundColor];
+	} else {
+		[self.view setBackgroundColor:UIColor.whiteColor];
+	}
 	NSBundle* gwBundle = [NSBundle bundleWithPath:@"/Library/Application Support/GlobalWarmingNoMore"];
 	
 	GWOnboardingSolidButton* getStartedButton = [GWOnboardingSolidButton new];
@@ -26,16 +32,16 @@
 	
 	
 	
-	UIScrollView* scrollView = [UIScrollView new];
-	[scrollView setTranslatesAutoresizingMaskIntoConstraints:NO];
-    [scrollView setPreservesSuperviewLayoutMargins:YES];
+	self.scrollView = [UIScrollView new];
+	[self.scrollView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    [self.scrollView setPreservesSuperviewLayoutMargins:YES];
 
-    [self.view addSubview:scrollView];
+    [self.view addSubview:self.scrollView];
 
-	[[scrollView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor] setActive:YES];
-    [[scrollView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:12.0] setActive:YES];
-    [[scrollView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-12.0] setActive:YES];
-	[[scrollView.bottomAnchor constraintEqualToAnchor:getStartedButton.topAnchor constant:-16.0] setActive:YES];
+	[[self.scrollView.topAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.topAnchor] setActive:YES];
+    [[self.scrollView.leadingAnchor constraintEqualToAnchor:self.view.leadingAnchor constant:12.0] setActive:YES];
+    [[self.scrollView.trailingAnchor constraintEqualToAnchor:self.view.trailingAnchor constant:-12.0] setActive:YES];
+	[[self.scrollView.bottomAnchor constraintEqualToAnchor:getStartedButton.topAnchor constant:-16.0] setActive:YES];
 	
 	
 	
@@ -47,10 +53,10 @@
 	UIImage* appIconImage = [UIImage imageNamed:NSBundle.mainBundle.infoDictionary[@"CFBundleIcons"][@"CFBundlePrimaryIcon"][@"CFBundleIconFiles"][0]];
 	[appIcon setImage:appIconImage];
 	
-	[scrollView addSubview:appIcon];
+	[self.scrollView addSubview:appIcon];
 	
-	[[appIcon.topAnchor constraintEqualToAnchor:scrollView.topAnchor constant:44] setActive:YES];
-    [[appIcon.leadingAnchor constraintEqualToAnchor:scrollView.leadingAnchor] setActive:YES];
+	[[appIcon.topAnchor constraintEqualToAnchor:self.scrollView.topAnchor constant:44] setActive:YES];
+    [[appIcon.leadingAnchor constraintEqualToAnchor:self.scrollView.leadingAnchor] setActive:YES];
 	[[appIcon.heightAnchor constraintEqualToConstant:60.0] setActive:YES];
 	[[appIcon.heightAnchor constraintEqualToConstant:60.0] setActive:YES];
 	
@@ -58,35 +64,45 @@
 
 	UILabel* titleLabel = [UILabel new];
 	[titleLabel setTranslatesAutoresizingMaskIntoConstraints:NO];
-	[titleLabel setNumberOfLines:0];
+	[titleLabel setNumberOfLines:2];
+	[titleLabel setLineBreakMode:NSLineBreakByClipping];
+	[titleLabel setAdjustsFontSizeToFitWidth:YES];
+	[titleLabel setMinimumScaleFactor:0.2];
 	[titleLabel setFont:[UIFont systemFontOfSize:30 weight:UIFontWeightHeavy]];
 	[titleLabel setText:[NSString stringWithFormat:GWLocalizedString(@"ONBOARDING_TITLE"), GWLocalizedString(@"ONBOARDING_NAME")]];
 	
 	NSMutableAttributedString* attributedString = [[NSMutableAttributedString alloc] initWithString:titleLabel.text];
-	[attributedString addAttributes:@{
-		NSForegroundColorAttributeName: [UIColor colorWithRed:0.0901961 green:0.835294 blue:0.992571 alpha:1.0],
-	} range:[titleLabel.text rangeOfString:GWLocalizedString(@"ONBOARDING_NAME")]];
+	
+	if (@available(iOS 13, *)) {
+		[attributedString addAttributes:@{
+			NSForegroundColorAttributeName: [UIColor systemTealColor],
+		} range:[titleLabel.text rangeOfString:GWLocalizedString(@"ONBOARDING_NAME")]];
+	} else {
+		[attributedString addAttributes:@{
+			NSForegroundColorAttributeName: [UIColor colorWithRed:0.0901961 green:0.835294 blue:0.992571 alpha:1.0],
+		} range:[titleLabel.text rangeOfString:GWLocalizedString(@"ONBOARDING_NAME")]];
+	}
 	[titleLabel setAttributedText:attributedString];
 	
-	[scrollView addSubview:titleLabel];
+	[self.scrollView addSubview:titleLabel];
 	
 	[[titleLabel.topAnchor constraintEqualToAnchor:appIcon.bottomAnchor constant:24.0] setActive:YES];
-	[[titleLabel.leadingAnchor constraintEqualToAnchor:scrollView.leadingAnchor] setActive:YES];
-    [[titleLabel.trailingAnchor constraintEqualToAnchor:scrollView.trailingAnchor] setActive:YES];
-	
+	[[titleLabel.leadingAnchor constraintEqualToAnchor:self.scrollView.leadingAnchor] setActive:YES];
+    [[titleLabel.trailingAnchor constraintEqualToAnchor:self.scrollView.trailingAnchor] setActive:YES];
+	[[titleLabel.widthAnchor constraintEqualToAnchor:self.self.scrollView.widthAnchor] setActive:YES];
 	
 	
 	GWOnboardingFeatureView* feature1 = [GWOnboardingFeatureView new];
 	[feature1.textLabel setText:GWLocalizedString(@"ONBOARDING_FEATURE_1_TITLE")];
 	[feature1.detailTextLabel setText:GWLocalizedString(@"ONBOARDING_FEATURE_1_DESCRIPTION")];
 	[feature1.imageView setImage:[[UIImage imageNamed:@"mostly-sunny-white_Normal" inBundle:gwBundle compatibleWithTraitCollection:nil] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-	[scrollView addSubview:feature1];
+	[self.scrollView addSubview:feature1];
 	
 	[[feature1.topAnchor constraintEqualToAnchor:titleLabel.bottomAnchor constant:24.0] setActive:YES];
-	[[feature1.leadingAnchor constraintEqualToAnchor:scrollView.leadingAnchor] setActive:YES];
-    [[feature1.trailingAnchor constraintEqualToAnchor:scrollView.trailingAnchor] setActive:YES];
-	[[feature1.widthAnchor constraintEqualToAnchor:scrollView.widthAnchor] setActive:YES];
-	[[feature1.heightAnchor constraintEqualToConstant:56.0] setActive:YES];
+	[[feature1.leadingAnchor constraintEqualToAnchor:self.scrollView.leadingAnchor] setActive:YES];
+    [[feature1.trailingAnchor constraintEqualToAnchor:self.scrollView.trailingAnchor] setActive:YES];
+	[[feature1.widthAnchor constraintEqualToAnchor:self.scrollView.widthAnchor] setActive:YES];
+//	[[feature1.heightAnchor constraintEqualToConstant:56.0] setActive:YES];
 	
 	
 	
@@ -94,13 +110,13 @@
 	[feature2.textLabel setText:GWLocalizedString(@"ONBOARDING_FEATURE_2_TITLE")];
 	[feature2.detailTextLabel setText:GWLocalizedString(@"ONBOARDING_FEATURE_2_DESCRIPTION")];
 	[feature2.imageView setImage:[[UIImage imageNamed:@"rain_day-white_Normal" inBundle:gwBundle compatibleWithTraitCollection:nil] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-	[scrollView addSubview:feature2];
+	[self.scrollView addSubview:feature2];
 	
-	[[feature2.topAnchor constraintEqualToAnchor:feature1.bottomAnchor constant:24.0] setActive:YES];
-	[[feature2.leadingAnchor constraintEqualToAnchor:scrollView.leadingAnchor] setActive:YES];
-    [[feature2.trailingAnchor constraintEqualToAnchor:scrollView.trailingAnchor] setActive:YES];
-	[[feature2.widthAnchor constraintEqualToAnchor:scrollView.widthAnchor] setActive:YES];
-	[[feature2.heightAnchor constraintEqualToConstant:56.0] setActive:YES];
+	[[feature2.topAnchor constraintEqualToAnchor:feature1.bottomAnchor constant:16.0] setActive:YES];
+	[[feature2.leadingAnchor constraintEqualToAnchor:self.scrollView.leadingAnchor] setActive:YES];
+    [[feature2.trailingAnchor constraintEqualToAnchor:self.scrollView.trailingAnchor] setActive:YES];
+	[[feature2.widthAnchor constraintEqualToAnchor:self.scrollView.widthAnchor] setActive:YES];
+//	[[feature2.heightAnchor constraintEqualToConstant:56.0] setActive:YES];
 	
 	
 	
@@ -108,13 +124,25 @@
 	[feature3.textLabel setText:GWLocalizedString(@"ONBOARDING_OPEN_SOURCE_TITLE")];
 	[feature3.detailTextLabel setText:GWLocalizedString(@"ONBOARDING_OPEN_SOURCE_DESCRIPTION")];
 	[feature3.imageView setImage:[[UIImage imageNamed:@"github" inBundle:gwBundle compatibleWithTraitCollection:nil] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]];
-	[scrollView addSubview:feature3];
+	[self.scrollView addSubview:feature3];
 	
-	[[feature3.topAnchor constraintEqualToAnchor:feature2.bottomAnchor constant:24.0] setActive:YES];
-	[[feature3.leadingAnchor constraintEqualToAnchor:scrollView.leadingAnchor] setActive:YES];
-    [[feature3.trailingAnchor constraintEqualToAnchor:scrollView.trailingAnchor] setActive:YES];
-	[[feature3.widthAnchor constraintEqualToAnchor:scrollView.widthAnchor] setActive:YES];
-	[[feature3.heightAnchor constraintEqualToConstant:56.0] setActive:YES];
+	[[feature3.topAnchor constraintEqualToAnchor:feature2.bottomAnchor constant:16.0] setActive:YES];
+	[[feature3.leadingAnchor constraintEqualToAnchor:self.scrollView.leadingAnchor] setActive:YES];
+    [[feature3.trailingAnchor constraintEqualToAnchor:self.scrollView.trailingAnchor] setActive:YES];
+	[[feature3.widthAnchor constraintEqualToAnchor:self.scrollView.widthAnchor] setActive:YES];
+//	[[feature3.heightAnchor constraintEqualToConstant:16.0] setActive:YES];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+	[super viewDidAppear:animated];
+	
+	CGRect contentRect = CGRectZero;
+	for (UIView* view in self.self.scrollView.subviews) {
+		if ([view isKindOfClass:[GWOnboardingFeatureView class]] && view.frame.origin.y > contentRect.origin.y) {
+			contentRect = view.frame;
+		}
+	}
+	[self.scrollView setContentSize:CGSizeMake(self.scrollView.bounds.size.width, contentRect.origin.y + contentRect.size.height)];
 }
 
 - (void)getStartedButtonTapped:(UIButton*)sender {

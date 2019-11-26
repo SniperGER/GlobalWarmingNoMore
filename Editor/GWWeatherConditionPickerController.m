@@ -18,6 +18,14 @@
 	return self;
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+	[super viewDidAppear:animated];
+	
+	if (@available(iOS 13, *)) {
+		[self setModalInPresentation:YES];
+	}
+}
+
 #pragma mark - Table View Data Source
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView*)tableView {
